@@ -1,3 +1,4 @@
+using CustomMath;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,10 +9,10 @@ public class MyMeshCollider : MonoBehaviour
 {
     struct Face
     {
-        public Vector3[] vertices;
+        public Vec3[] vertices;
         public Plane plane;
 
-        public Face(Vector3[] vertices)
+        public Face(Vec3[] vertices)
         {
             this.vertices = vertices;
             plane = new Plane(vertices[0], vertices[1], vertices[2]);
@@ -20,9 +21,10 @@ public class MyMeshCollider : MonoBehaviour
 
     CubicGrid grid;
     public float size = 1f;
-    Mesh mesh;
+    public int id;
 
-    List<Vector3> points = new List<Vector3>();
+    Mesh mesh;
+    public List<Vec3> points = new List<Vec3>();
     List<Face> faces = new List<Face>();
 
     Transform prevTrans;
@@ -59,9 +61,9 @@ public class MyMeshCollider : MonoBehaviour
 
         for (int i = 0; i < vertexIndex.Length; i += 3)
         {
-            Vector3 vertex1 = transform.TransformPoint(mesh.vertices[vertexIndex[i]]);
-            Vector3 vertex2 = transform.TransformPoint(mesh.vertices[vertexIndex[i + 1]]);
-            Vector3 vertex3 = transform.TransformPoint(mesh.vertices[vertexIndex[i + 2]]);
+            Vec3 vertex1 = transform.TransformPoint(mesh.vertices[vertexIndex[i]]);
+            Vec3 vertex2 = transform.TransformPoint(mesh.vertices[vertexIndex[i + 1]]);
+            Vec3 vertex3 = transform.TransformPoint(mesh.vertices[vertexIndex[i + 2]]);
 
             Face face = new Face(new[] { vertex1, vertex2, vertex3 });
 
@@ -71,9 +73,16 @@ public class MyMeshCollider : MonoBehaviour
         }
     }
 
+    public void CollisionStay()
+    {
+        Debug.Log("Colliding " + id);
+
+        
+    }
+
     private void CheckPointsInside()
     {
-        Vector3[,,] positions = grid.GetPointPositions();
+        Vec3[,,] positions = grid.GetPointPositions();
 
         points.Clear();
 
@@ -92,9 +101,9 @@ public class MyMeshCollider : MonoBehaviour
         }
     }
 
-    private bool PointInMesh(Vector3 point)
+    private bool PointInMesh(Vec3 point)
     {
-        Ray ray = new Ray(point, Vector3.forward);
+        Ray ray = new Ray(point, Vec3.Forward);
         float hit;
         int count = 0;
 
@@ -102,7 +111,7 @@ public class MyMeshCollider : MonoBehaviour
         {
             if (face.plane.Raycast(ray, out hit))
             {
-                Vector3 collisionPoint = ray.GetPoint(hit);
+                Vec3 collisionPoint = ray.GetPoint(hit);
 
                 if (CheckFacesPoint(face.vertices[0], face.vertices[1], face.vertices[2], collisionPoint))
                 {
@@ -116,7 +125,7 @@ public class MyMeshCollider : MonoBehaviour
 
     }
 
-    private bool CheckFacesPoint(Vector3 corner, Vector3 corner2, Vector3 corner3, Vector3 point)
+    private bool CheckFacesPoint(Vec3 corner, Vec3 corner2, Vec3 corner3, Vec3 point)
     {
         float faceArea = TriangleArea(corner, corner2, corner3);
         float area1 = TriangleArea(corner, corner2, point);
@@ -127,11 +136,11 @@ public class MyMeshCollider : MonoBehaviour
 
     }
 
-    private static float TriangleArea(Vector3 v1, Vector3 v2, Vector3 v3)
+    private static float TriangleArea(Vec3 v1, Vec3 v2, Vec3 v3)
     {
-        float a = Vector3.Distance(v1, v2);
-        float b = Vector3.Distance(v2, v3);
-        float c = Vector3.Distance(v3, v1);
+        float a = Vec3.Distance(v1, v2);
+        float b = Vec3.Distance(v2, v3);
+        float c = Vec3.Distance(v3, v1);
 
         float semiperimeter = (a + b + c) / 2f;
 
@@ -148,11 +157,11 @@ public class MyMeshCollider : MonoBehaviour
         return area;
     }
 
-    private void DrawPoint(List<Vector3> points, float size)
+    private void DrawPoint(List<Vec3> points, float size)
     {
         for (int i = 0; i < points.Count; i++)
         {
-            Debug.DrawLine(points[i], points[i] + Vector3.up, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Up, UnityEngine.Color.red);
         }
     }
 

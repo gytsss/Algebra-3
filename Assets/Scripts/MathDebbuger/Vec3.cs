@@ -109,6 +109,10 @@ namespace CustomMath
         {
             return new Vec3(leftV3.x - rightV3.x, leftV3.y - rightV3.y, leftV3.z - rightV3.z);
         }
+        public static Vec3 operator -(Vec3 leftV3, Vector3 rightV3)
+        {
+            return new Vec3(leftV3.x - rightV3.x, leftV3.y - rightV3.y, leftV3.z - rightV3.z);
+        }
 
         public static Vec3 operator -(Vec3 v3)
         {
@@ -133,6 +137,10 @@ namespace CustomMath
         public static implicit operator Vector3(Vec3 v3)
         {
             return new Vector3(v3.x, v3.y, v3.z);
+        }
+        public static implicit operator Vec3(Vector3 v3)
+        {
+            return new Vec3(v3.x, v3.y, v3.z);
         }
 
         public static implicit operator Vector2(Vec3 v3)

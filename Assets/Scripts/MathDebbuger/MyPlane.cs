@@ -1,3 +1,4 @@
+using CustomMath;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,7 +7,7 @@ using UnityEngine;
 public class MyPlane : MonoBehaviour
 {
     public float _distance;
-    public Vector3 _normal;
+    public Vec3 _normal;
     public MyPlane _flipped;
 
     public float distance
@@ -21,7 +22,7 @@ public class MyPlane : MonoBehaviour
         }
     }
 
-    public Vector3 normal
+    public Vec3 normal
     {
         get
         {
@@ -34,24 +35,24 @@ public class MyPlane : MonoBehaviour
     }
 
 
-    public MyPlane(Vector3 inNormal, float distance) 
+    public MyPlane(Vec3 inNormal, float distance)
     {
         normal = inNormal;
         this.distance = distance;
     }
-    public MyPlane(Vector3 inNormal, Vector3 inPoint) 
+    public MyPlane(Vec3 inNormal, Vec3 inPoint)
     {
         normal = inNormal;
-        distance = -Vector3.Dot(inNormal, inPoint);
+        distance = -Vec3.Dot(inNormal, inPoint);
     }
 
-    public MyPlane(Vector3 a, Vector3 b, Vector3 c) 
+    public MyPlane(Vec3 a, Vec3 b, Vec3 c)
     {
-        normal = Vector3.Cross(b - a, c - a).normalized;
-        distance = -Vector3.Dot(normal, a);
+        normal = Vec3.Cross(b - a, c - a).normalized;
+        distance = -Vec3.Dot(normal, a);
     }
 
-    public Vector3 ClosestPointOnPlane(Vector3 point)
+    public Vec3 ClosestPointOnPlane(Vec3 point)
     {
         float distanceToPoint = GetDistanceToPoint(point);
         return point - normal * distanceToPoint;
@@ -63,14 +64,14 @@ public class MyPlane : MonoBehaviour
         distance *= -1f;
     }
 
-    public float GetDistanceToPoint(Vector3 point)
+    public float GetDistanceToPoint(Vec3 point)
     {
-        return Vector3.Dot(normal, point) + distance;
+        return Vec3.Dot(normal, point) + distance;
     }
 
-    public bool GetSide(Vector3 point)
+    public bool GetSide(Vec3 point)
     {
-        return Vector3.Dot(normal, point) + distance > 0;
+        return Vec3.Dot(normal, point) + distance > 0;
     }
 
     public bool Raycast(Ray ray, out float enter)
@@ -79,9 +80,9 @@ public class MyPlane : MonoBehaviour
         float rayDistance;
         if (new MyPlane(normal, transform.position).Raycast(ray, out rayDistance))
         {
-            Vector3 planePoint = ray.origin + ray.direction * rayDistance;
-            Vector3 rayEndPoint = planePoint - normal * GetDistanceToPoint(ray.origin);
-            if (Vector3.Dot(rayEndPoint - ray.origin, ray.direction) >= 0f)
+            Vec3 planePoint = ray.origin + ray.direction * rayDistance;
+            Vec3 rayEndPoint = planePoint - normal * GetDistanceToPoint(ray.origin);
+            if (Vec3.Dot(rayEndPoint - ray.origin, ray.direction) >= 0f)
             {
                 enter = rayDistance;
                 return true;
@@ -90,28 +91,27 @@ public class MyPlane : MonoBehaviour
         return false;
     }
 
-    public bool SameSide(Vector3 inPt0, Vector3 inPt1)
+    public bool SameSide(Vec3 inPt0, Vec3 inPt1)
     {
         float d0 = GetDistanceToPoint(inPt0);
         float d1 = GetDistanceToPoint(inPt1);
         return d0 >= 0f && d1 >= 0f || d0 < 0f && d1 < 0f;
     }
 
-    public void Set3Points(Vector3 a, Vector3 b, Vector3 c) 
+    public void Set3Points(Vec3 a, Vec3 b, Vec3 c)
     {
-        normal = Vector3.Cross(b - a, c - a).normalized;
-        distance = -Vector3.Dot(normal, a);
+        normal = Vec3.Cross(b - a, c - a).normalized;
+        distance = -Vec3.Dot(normal, a);
     }
 
-    public void SetNormalAndPosition(Vector3 inNormal, Vector3 inPoint) 
+    public void SetNormalAndPosition(Vec3 inNormal, Vec3 inPoint)
     {
         normal = inNormal;
-        distance = -Vector3.Dot(inNormal, inPoint);
+        distance = -Vec3.Dot(inNormal, inPoint);
     }
 
-    public static MyPlane Translate(MyPlane plane, Vector3 translation)
+    public void Translate(float distance)
     {
-        plane.distance += Vector3.Dot(plane.normal, translation);
-        return plane;
+        this.distance += distance;
     }
 }
