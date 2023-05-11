@@ -11,8 +11,8 @@ namespace CustomMath
         public float y;
         public float z;
 
-        public float sqrMagnitude { get { return x * x + y * y + z * z; } } //Es util porque es mas rapido que calcular la magnitud en si / calcular las longitudes
-        public Vec3 normalized  //Vector con misma direccion pero con mag 1
+        public float sqrMagnitude { get { return x * x + y * y + z * z; } } //Es util porque es mas rapido 
+        public Vec3 normalized  
         {
             get
             {
@@ -24,11 +24,11 @@ namespace CustomMath
             }
         }
 
-        public float magnitude { get { return Mathf.Sqrt(sqrMagnitude); } } //Longitud del vector ultilizando pitagoras
+        public float magnitude { get { return Mathf.Sqrt(sqrMagnitude); } } 
         #endregion
 
         #region constants
-        public const float epsilon = 1e-05f; //Pequeño numero que se utiliza para la comparacion de floats
+        public const float epsilon = 1e-05f; 
         #endregion
 
         #region Default Values
@@ -146,7 +146,7 @@ namespace CustomMath
         {
             return "X = " + x.ToString() + "   Y = " + y.ToString() + "   Z = " + z.ToString();
         }
-        public static float Angle(Vec3 from, Vec3 to)  //Angulo entre 2 vectores
+        public static float Angle(Vec3 from, Vec3 to)  
         {
             float cosTheta = Vec3.Dot(from.normalized, to.normalized);
             float theta = Mathf.Acos(cosTheta) * Mathf.Rad2Deg;
@@ -170,7 +170,7 @@ namespace CustomMath
             return Mathf.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
         }
 
-        public static Vec3 Cross(Vec3 a, Vec3 b) //Producto cruz entre los vectores
+        public static Vec3 Cross(Vec3 a, Vec3 b) 
         {
             return new Vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
         }
@@ -180,7 +180,7 @@ namespace CustomMath
             return (a - b).magnitude;
         }
 
-        public static float Dot(Vec3 a, Vec3 b) //Producto punto entre los vectores
+        public static float Dot(Vec3 a, Vec3 b) 
         {
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
@@ -206,7 +206,7 @@ namespace CustomMath
             return new Vec3(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Min(a.z, b.z));
         }
 
-        public static float SqrMagnitude(Vec3 vector) //Magnitud al cuadrado
+        public static float SqrMagnitude(Vec3 vector) 
         {
             return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
         }
@@ -229,14 +229,14 @@ namespace CustomMath
             return inDirection - 2.0f * Dot(inDirection, inNormal) * inNormal;
         }
 
-        public void Set(float newX, float newY, float newZ) //Setear los valores de un vector
+        public void Set(float newX, float newY, float newZ) 
         {
             x = newX;
             y = newY;
             z = newZ;
         }
 
-        public void Scale(Vec3 scale) //Escalar un vector
+        public void Scale(Vec3 scale) 
         {
             x *= scale.x;
             y *= scale.y;
