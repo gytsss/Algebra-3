@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 
-public class Planes : MonoBehaviour
+public class MyPlane : MonoBehaviour
 {
     public float _distance;
     public Vector3 _normal;
-    public Planes _flipped;
+    public MyPlane _flipped;
 
     public float distance
     {
@@ -34,18 +34,18 @@ public class Planes : MonoBehaviour
     }
 
 
-    public Planes(Vector3 inNormal, float distance) 
+    public MyPlane(Vector3 inNormal, float distance) 
     {
         normal = inNormal;
         this.distance = distance;
     }
-    public Planes(Vector3 inNormal, Vector3 inPoint) 
+    public MyPlane(Vector3 inNormal, Vector3 inPoint) 
     {
         normal = inNormal;
         distance = -Vector3.Dot(inNormal, inPoint);
     }
 
-    public Planes(Vector3 a, Vector3 b, Vector3 c) 
+    public MyPlane(Vector3 a, Vector3 b, Vector3 c) 
     {
         normal = Vector3.Cross(b - a, c - a).normalized;
         distance = -Vector3.Dot(normal, a);
@@ -77,7 +77,7 @@ public class Planes : MonoBehaviour
     {
         enter = 0f;
         float rayDistance;
-        if (new Planes(normal, transform.position).Raycast(ray, out rayDistance))
+        if (new MyPlane(normal, transform.position).Raycast(ray, out rayDistance))
         {
             Vector3 planePoint = ray.origin + ray.direction * rayDistance;
             Vector3 rayEndPoint = planePoint - normal * GetDistanceToPoint(ray.origin);
@@ -109,7 +109,7 @@ public class Planes : MonoBehaviour
         distance = -Vector3.Dot(inNormal, inPoint);
     }
 
-    public static Planes Translate(Planes plane, Vector3 translation)
+    public static MyPlane Translate(MyPlane plane, Vector3 translation)
     {
         plane.distance += Vector3.Dot(plane.normal, translation);
         return plane;

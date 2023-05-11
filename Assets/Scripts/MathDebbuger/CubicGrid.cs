@@ -7,7 +7,8 @@ public class CubicGrid : MonoBehaviour
     public GameObject pointPrefab;
     public float pointDistance = 1f;
     public int gridSize = 10;
-    private Vector3[,,] pointPositions;
+    private Vector3[,,] pointPositions = new Vector3[0, 0, 0];
+    [SerializeField] private bool draw = true;
 
     // Start is called before the first frame update
     private void Start()
@@ -19,17 +20,21 @@ public class CubicGrid : MonoBehaviour
     {
         pointPositions = new Vector3[gridSize, gridSize, gridSize];
 
-        for (int x = 0; x < gridSize; x++)
+        for (int i = 0; i < gridSize; i++)
         {
-            for (int y = 0; y < gridSize; y++)
+            for (int j = 0; j < gridSize; j++)
             {
-                for (int z = 0; z < gridSize; z++)
+                for (int k = 0; k < gridSize; k++)
                 {
-                    Vector3 position = new Vector3(x * pointDistance, y * pointDistance, z * pointDistance);
-                    GameObject point = Instantiate(pointPrefab, position, Quaternion.identity);
-                    point.transform.parent = transform;
+                    Vector3 position = new Vector3(i * pointDistance, j * pointDistance, k * pointDistance);
 
-                    pointPositions[x, y, z] = position;
+                    if (draw)
+                    {
+                        GameObject point = Instantiate(pointPrefab, position, Quaternion.identity);
+                        point.transform.parent = transform;
+                    }
+
+                    pointPositions[i, j, k] = position;
                 }
             }
         }
@@ -38,5 +43,54 @@ public class CubicGrid : MonoBehaviour
     public Vector3[,,] GetPointPositions()
     {
         return pointPositions;
+    }
+
+    public List<Vector3> CheckCubeCollision(Vector3 upPlane, Vector3 downPlane, Vector3 rightPlane, Vector3 leftPlane, Vector3 frontPlane, Vector3 backPlane)
+    {
+        List<Vector3> points = new List<Vector3>();
+
+        for (int i = 0; i < gridSize; i++)
+        {
+            for (int j = 0; j < gridSize; j++)
+            {
+                for (int k = 0; k < gridSize; k++)
+                {
+                    Vector3 position = pointPositions[i, j, k];
+                    bool insideCube = true;
+
+                    if (Vector3.Dot(position - upPlane, Vector3.up) < 0)
+                    {
+                        insideCube = false;
+                    }
+                    if (Vector3.Dot(position - downPlane, Vector3.down) < 0)
+                    {
+                        insideCube = false;
+                    }
+                    if (Vector3.Dot(position - rightPlane, Vector3.right) < 0)
+                    {
+                        insideCube = false;
+                    }
+                    if (Vector3.Dot(position - leftPlane, Vector3.left) < 0)
+                    {
+                        insideCube = false;
+                    }
+                    if (Vector3.Dot(position - frontPlane, Vector3.forward) < 0)
+                    {
+                        insideCube = false;
+                    }
+                    if (Vector3.Dot(position - backPlane, Vector3.back) < 0)
+                    {
+                        insideCube = false;
+                    }
+
+                    if (insideCube)
+                    {
+                        points.Add(position);
+                    }
+                }
+            }
+        }
+
+        return points;
     }
 }
