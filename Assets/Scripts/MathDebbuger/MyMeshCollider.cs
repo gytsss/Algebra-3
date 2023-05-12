@@ -20,37 +20,21 @@ public class MyMeshCollider : MonoBehaviour
     }
 
     CubicGrid grid;
-    public float size = 1f;
     public int id;
-
+    
     Mesh mesh;
     public List<Vec3> points = new List<Vec3>();
     List<Face> faces = new List<Face>();
 
-    Transform prevTrans;
-
-    private void Start()
-    {
-        prevTrans = transform;
-    }
-
     private void Update()
     {
-        if (prevTrans != transform)
-            PositionUpdated();
-
         grid = FindObjectOfType<CubicGrid>();
         mesh = GetComponent<MeshFilter>().sharedMesh;
 
         GetFaces();
         CheckPointsInside();
 
-        DrawPoint(points, size);
-    }
-
-    private void PositionUpdated()
-    {
-        prevTrans.position = transform.position;
+        DrawPoint(points);
     }
 
     private void GetFaces()
@@ -76,8 +60,6 @@ public class MyMeshCollider : MonoBehaviour
     public void CollisionStay()
     {
         Debug.Log("Colliding " + id);
-
-        
     }
 
     private void CheckPointsInside()
@@ -145,8 +127,7 @@ public class MyMeshCollider : MonoBehaviour
         float semiperimeter = (a + b + c) / 2f;
 
         float areaSquared = semiperimeter * (semiperimeter - a) * (semiperimeter - b) * (semiperimeter - c);
-
-        // Check if the triangle is degenerate 
+ 
         if (areaSquared <= 0f)
         {
             return 0f;
@@ -157,11 +138,16 @@ public class MyMeshCollider : MonoBehaviour
         return area;
     }
 
-    private void DrawPoint(List<Vec3> points, float size)
+    private void DrawPoint(List<Vec3> points)
     {
         for (int i = 0; i < points.Count; i++)
         {
-            Debug.DrawLine(points[i], points[i] + Vec3.Up, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Up / 5, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Right / 5, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Left / 5, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Down / 5, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Forward / 5, UnityEngine.Color.red);
+            Debug.DrawLine(points[i], points[i] + Vec3.Back / 5, UnityEngine.Color.red);
         }
     }
 

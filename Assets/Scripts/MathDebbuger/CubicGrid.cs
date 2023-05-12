@@ -1,6 +1,7 @@
 using CustomMath;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class CubicGrid : MonoBehaviour
@@ -33,8 +34,9 @@ public class CubicGrid : MonoBehaviour
                         GameObject point = Instantiate(pointPrefab, position, Quaternion.identity);
                         point.transform.parent = transform;
                     }
-
+                    
                     pointPositions[i, j, k] = position;
+
                 }
             }
         }

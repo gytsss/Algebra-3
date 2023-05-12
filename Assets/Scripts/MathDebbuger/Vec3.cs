@@ -11,7 +11,7 @@ namespace CustomMath
         public float y;
         public float z;
 
-        public float sqrMagnitude { get { return x * x + y * y + z * z; } } //Es util porque es mas rapido 
+        public float sqrMagnitude { get { return x * x + y * y + z * z; } } 
         public Vec3 normalized  
         {
             get
@@ -41,10 +41,8 @@ namespace CustomMath
         public static Vec3 Up { get { return new Vec3(0.0f, 1.0f, 0.0f); } }
         public static Vec3 Down { get { return new Vec3(0.0f, -1.0f, 0.0f); } }
         
-        //Se setea el valor mas grande que un float puede almacenar, se utiliza como valor maximo en algunos calculos
         public static Vec3 PositiveInfinity { get { return new Vec3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity); } }
 
-        //Se setea el valor mas chico que un float puede almacenar, se utiliza como valor minimo en algunos calculos
         public static Vec3 NegativeInfinity { get { return new Vec3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity); } }
         #endregion                                                                                                                                                                               
 
@@ -161,7 +159,7 @@ namespace CustomMath
             return theta;
         }
 
-        public static Vec3 ClampMagnitude(Vec3 vector, float maxLength) //Vector con una magnitud limitada, si es mayor a x magnitud
+        public static Vec3 ClampMagnitude(Vec3 vector, float maxLength)  
         {
             if (vector.magnitude > maxLength)
             {
@@ -193,7 +191,7 @@ namespace CustomMath
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
-        public static Vec3 Lerp(Vec3 a, Vec3 b, float t) //Vector interpolado entre otros 2
+        public static Vec3 Lerp(Vec3 a, Vec3 b, float t) 
         {
             t = Mathf.Clamp01(t);
             return a + (b - a) * t;
@@ -204,12 +202,12 @@ namespace CustomMath
             return a + (b - a) * t;
         }
 
-        public static Vec3 Max(Vec3 a, Vec3 b) //Vector que tiene valor maximo en cada una de las componentes
+        public static Vec3 Max(Vec3 a, Vec3 b) 
         {
             return new Vec3(Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y), Mathf.Max(a.z, b.z));
         }
 
-        public static Vec3 Min(Vec3 a, Vec3 b) //Vector que tiene valor minimo en cada una de las componentes
+        public static Vec3 Min(Vec3 a, Vec3 b) 
         {
             return new Vec3(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Min(a.z, b.z));
         }
@@ -219,7 +217,7 @@ namespace CustomMath
             return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
         }
 
-        public static Vec3 Project(Vec3 vector, Vec3 onNormal) //Proyecta el vector en la direccion del vector normalizado
+        public static Vec3 Project(Vec3 vector, Vec3 onNormal) 
         {
             float sqrMag = Vec3.Dot(onNormal, onNormal);
 
@@ -232,7 +230,7 @@ namespace CustomMath
             return onNormal * dot / sqrMag;
         }
 
-        public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal) //Refleja un vector en una superficie con normal
+        public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal) 
         {
             return inDirection - 2.0f * Dot(inDirection, inNormal) * inNormal;
         }
@@ -251,7 +249,7 @@ namespace CustomMath
             z *= scale.z;
         }
 
-        public void Normalize() //Normaliza el vector, para tener una magnitud de 1, misma direc
+        public void Normalize() 
         {
             float mag = Magnitude(this);
 
@@ -273,12 +271,12 @@ namespace CustomMath
             return Equals((Vec3)other);
         }
 
-        public bool Equals(Vec3 other) //Compara 2 vectores, true si son iguales
+        public bool Equals(Vec3 other) 
         {
             return x == other.x && y == other.y && z == other.z;
         }
 
-        public override int GetHashCode() //Devuelve un numero de hash unico basado en x,y,z
+        public override int GetHashCode() 
         {
             return x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (z.GetHashCode() >> 2);
         }
