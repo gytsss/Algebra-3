@@ -253,7 +253,7 @@ MonoBehaviour:
   pointPrefab: {fileID: 5433796250234990261, guid: c71e249227b15e748b88b5955ee78ee3, type: 3}
   pointDistance: 0.5
   gridSize: 10
-  draw: 0
+  draw: 1
 --- !u!4 &510009486
 Transform:
   m_ObjectHideFlags: 0
