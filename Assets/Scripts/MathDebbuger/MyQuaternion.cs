@@ -6,12 +6,39 @@ using UnityEngine.UIElements;
 
 public struct MyQuaternion 
 {
-    #region Variables
+    #region StaticProperties
+    public static MyQuaternion identity => new MyQuaternion(0, 0, 0, 1);
+    #endregion
+
+    #region Properties
     public float x;
     public float y;
     public float z;
     public float w;
 
+    public Vector3 eulerAngles
+    {
+        get
+        {
+            float pitch = Mathf.Atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y)) * Mathf.Rad2Deg;
+            float yaw = Mathf.Atan2(2 * (w * y - z * x), 1 - 2 * (y * y + x * x)) * Mathf.Rad2Deg;
+            float roll = Mathf.Asin(2 * (w * z + x * y)) * Mathf.Rad2Deg;
+            return new Vector3(pitch, yaw, roll);
+        }
+    }
+    public Quaternion normalized
+    {
+        get
+        {
+            Quaternion q = new Quaternion(x, y, z, w);
+            float mag = Mathf.Sqrt(w * w + x * x + y * y + z * z);
+            q.x /= mag;
+            q.y /= mag;
+            q.z /= mag;
+            q.w /= mag;
+            return q;
+        }
+    }
     public float this[int index]
     {
         get
@@ -51,34 +78,7 @@ public struct MyQuaternion
             }
         }
     }
-
-    public Vector3 eulerAngles
-    {
-        get
-        {
-            return Internal_MakePositive(QuaternionToEuler(this));
-        }
-        set
-        {
-            this = Euler(value);
-        }
-    }
-    public Quaternion normalized
-    {
-        get
-        {
-            Quaternion q = new Quaternion(x, y, z, w);
-            float mag = Mathf.Sqrt(w * w + x * x + y * y + z * z);
-            q.x /= mag;
-            q.y /= mag;
-            q.z /= mag;
-            q.w /= mag;
-            return q;
-        }
-    }
     #endregion
-
-    public static MyQuaternion identity => new MyQuaternion(0, 0, 0, 1);
 
     #region Constructor
     public MyQuaternion(float x, float y, float z, float w)
@@ -146,12 +146,12 @@ public struct MyQuaternion
             {
                 axis = Vector3.Cross(fromDirection, Vector3.up).normalized;
             }
-            SetAxisAngle(axis, 180.0f);
+            AxisAngle(axis, 180.0f);
         }
         else
         {
             float angle = Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f));
-            SetAxisAngle(cross.normalized, angle * Mathf.Rad2Deg);
+            AxisAngle(cross.normalized, angle * Mathf.Rad2Deg);
         }
     }
 
@@ -237,39 +237,28 @@ public struct MyQuaternion
         return rotation;
     }
 
+    public static MyQuaternion AxisAngle(Vector3 axis, float angle)
+    {
+        // Normalize the axis vector
+        axis.Normalize();
+
+        // Calculate half the angle
+        float halfAngle = angle * 0.5f;
+
+        // Calculate the sin and cos of half the angle
+        float sinHalfAngle = Mathf.Sin(halfAngle);
+        float cosHalfAngle = Mathf.Cos(halfAngle);
+
+        // Create a new quaternion using the axis and the sin/cos of half the angle
+        return new MyQuaternion(axis.x * sinHalfAngle, axis.y * sinHalfAngle, axis.z * sinHalfAngle, cosHalfAngle);
+    }
+
     public static float Dot(MyQuaternion a, MyQuaternion b)
     {
         // Calculate the dot product of the two quaternions
         float dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
         return dot;
-    }
-
-    public static MyQuaternion Euler(float x, float y, float z)
-    {
-        // Convert the angles to radians
-        float rx = x * Mathf.Deg2Rad;
-        float ry = y * Mathf.Deg2Rad;
-        float rz = z * Mathf.Deg2Rad;
-
-        // Calculate the sine and cosine of half the angles
-        float cx = Mathf.Cos(rx * 0.5f);
-        float cy = Mathf.Cos(ry * 0.5f);
-        float cz = Mathf.Cos(rz * 0.5f);
-        float sx = Mathf.Sin(rx * 0.5f);
-        float sy = Mathf.Sin(ry * 0.5f);
-        float sz = Mathf.Sin(rz * 0.5f);
-
-        // Calculate the components of the quaternion
-        float w = cx * cy * cz + sx * sy * sz;
-        float x = sx * cy * cz - cx * sy * sz;
-        float y = cx * sy * cz + cy * sx * sz;
-        float z = cx * cy * sz - sx * sy * cz;
-
-        // Create a quaternion using the components
-        MyQuaternion rotation = new MyQuaternion(x, y, z, w);
-
-        return rotation;
     }
 
     public static MyQuaternion Euler(Vector3 euler)
@@ -297,6 +286,27 @@ public struct MyQuaternion
         MyQuaternion rotation = new MyQuaternion(x, y, z, w);
 
         return rotation;
+    }
+
+    public static MyQuaternion Euler(float x, float y, float z)
+    {
+        float xRad = x * Mathf.Deg2Rad * 0.5f;
+        float yRad = y * Mathf.Deg2Rad * 0.5f;
+        float zRad = z * Mathf.Deg2Rad * 0.5f;
+
+        float sinX = Mathf.Sin(xRad);
+        float cosX = Mathf.Cos(xRad);
+        float sinY = Mathf.Sin(yRad);
+        float cosY = Mathf.Cos(yRad);
+        float sinZ = Mathf.Sin(zRad);
+        float cosZ = Mathf.Cos(zRad);
+
+        float w = cosX * cosY * cosZ + sinX * sinY * sinZ;
+        float xValue = sinX * cosY * cosZ - cosX * sinY * sinZ;
+        float yValue = cosX * sinY * cosZ + sinX * cosY * sinZ;
+        float zValue = cosX * cosY * sinZ - sinX * sinY * cosZ;
+
+        return new MyQuaternion(xValue, yValue, zValue, w);
     }
 
     public static MyQuaternion FromToRotation(Vector3 fromDirection, Vector3 toDirection)
@@ -344,34 +354,27 @@ public struct MyQuaternion
 
     public static MyQuaternion Lerp(MyQuaternion a, MyQuaternion b, float t)
     {
-        MyQuaternion result = new MyQuaternion(0.0f, 0.0f, 0.0f, 1.0f);
+        t = Mathf.Clamp01(t);
+        float invT = 1f - t;
 
-        // Interpolate between the two quaternions
-        result.x = Mathf.Lerp(a.x, b.x, t);
-        result.y = Mathf.Lerp(a.y, b.y, t);
-        result.z = Mathf.Lerp(a.z, b.z, t);
-        result.w = Mathf.Lerp(a.w, b.w, t);
+        float w = a.w * invT + b.w * t;
+        float x = a.x * invT + b.x * t;
+        float y = a.y * invT + b.y * t;
+        float z = a.z * invT + b.z * t;
 
-        // Normalize the result quaternion
-        result.Normalize();
-
-        return result;
+        return new MyQuaternion(x, y, z, w);
     }
 
     public static MyQuaternion LerpUnclamped(MyQuaternion a, MyQuaternion b, float t)
     {
-        MyQuaternion result = new MyQuaternion(0.0f, 0.0f, 0.0f, 1.0f);
+        float invT = 1f - t;
 
-        // Interpolate between the two quanternions
-        result.x = Mathf.LerpUnclamped(a.x, b.x, t);
-        result.y = Mathf.LerpUnclamped(a.y, b.y, t);
-        result.z = Mathf.LerpUnclamped(a.z, b.z, t);
-        result.w = Mathf.LerpUnclamped(a.w, b.w, t);
+        float w = a.w * invT + b.w * t;
+        float x = a.x * invT + b.x * t;
+        float y = a.y * invT + b.y * t;
+        float z = a.z * invT + b.z * t;
 
-        // Normalize the result quaternion
-        result.Normalize();
-
-        return result;
+        return new MyQuaternion(x, y, z, w);
     }
 
     public static MyQuaternion LookRotation(Vector3 forward, Vector3 upwards)
@@ -396,7 +399,15 @@ public struct MyQuaternion
 
     public static MyQuaternion Normalize(MyQuaternion q)
     {
-        return q.normalized;
+        float magnitude = Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+        float invMagnitude = 1f / magnitude;
+
+        return new MyQuaternion(
+            q.x * invMagnitude,
+            q.y * invMagnitude,
+            q.z * invMagnitude,
+            q.w * invMagnitude
+        );
     }
 
     public static MyQuaternion RotateTowards(MyQuaternion from, MyQuaternion to, float maxDegreesDelta)
@@ -409,80 +420,64 @@ public struct MyQuaternion
 
     public static MyQuaternion Slerp(MyQuaternion a, MyQuaternion b, float t)
     {
-        // Calculate the cosine of the angle between the two quaternions
-        float cosTheta = MyQuaternion.Dot(a, b);
+        float dot = MyQuaternion.Dot(a, b);
 
-        // If the quaternions are in opposite hemispheres, flip one of them
-        if (cosTheta < 0.0f)
+        // Adjusting the sign of one quaternion if necessary
+        if (dot < 0)
         {
             b = new MyQuaternion(-b.x, -b.y, -b.z, -b.w);
-            cosTheta = -cosTheta;
+            dot = -dot;
         }
 
-        // If the quaternions are very close, just return one of them
-        if (cosTheta > 0.9995f)
+        // Checking if the quaternions are close to each other and returning the result
+        if (dot > 0.9995f)
         {
-            return MyQuaternion.Lerp(a, b, t);
+            return MyQuaternion.LerpUnclamped(a, b, t);
         }
-        else
-        {
-            // Calculate the angle between the two quaternions
-            float theta = Mathf.Acos(cosTheta);
 
-            // Calculate the sin of the angle between the two quaternions
-            float sinTheta = Mathf.Sin(theta);
+        // Calculating the angle between the quaternions
+        float theta = Mathf.Acos(dot);
+        float invSinTheta = 1f / Mathf.Sin(theta);
 
-            // Calculate the weightings for the two quaternions
-            float w1 = Mathf.Sin((1.0f - t) * theta) / sinTheta;
-            float w2 = Mathf.Sin(t * theta) / sinTheta;
+        // Calculating the weights for the interpolation
+        float weightA = Mathf.Sin((1 - t) * theta) * invSinTheta;
+        float weightB = Mathf.Sin(t * theta) * invSinTheta;
 
-            // Interpolate between the two quaternions using the weightings
-            MyQuaternion result = new MyQuaternion(
-                a.x * w1 + b.x * w2,
-                a.y * w1 + b.y * w2,
-                a.z * w1 + b.z * w2,
-                a.w * w1 + b.w * w2);
-
-            // Normalize the result quaternion
-            result.Normalize();
-
-            return result;
-        }
+        // Interpolating between the quaternions using the calculated weights
+        return new MyQuaternion(
+            weightA * a.x + weightB * b.x,
+            weightA * a.y + weightB * b.y,
+            weightA * a.z + weightB * b.z,
+            weightA * a.w + weightB * b.w);
     }
 
     public static MyQuaternion SlerpUnclamped(MyQuaternion a, MyQuaternion b, float t)
     {
-        // Calculate the cosine of the angle between the two quaternions
-        float cosTheta = MyQuaternion.Dot(a, b);
+        // Calculating the dot product between both quaternions
+        float dot = MyQuaternion.Dot(a, b);
 
-        // If the quaternions are in opposite hemispheres, flip one of them
-        if (cosTheta < 0.0f)
+        // Adjusting the sign of one quaternion if necessary
+        if (dot < 0)
         {
             b = new MyQuaternion(-b.x, -b.y, -b.z, -b.w);
-            cosTheta = -cosTheta;
+            dot = -dot;
         }
 
-        // Calculate the angle between the two quaternions
-        float theta = Mathf.Acos(cosTheta);
+        // Calculating the angle between the quaternions
+        float theta = Mathf.Acos(dot);
+        float invSinTheta = 1f / Mathf.Sin(theta);
 
-        // Calculate the sin of the angle between the two quaternions
-        float sinTheta = Mathf.Sin(theta);
+        // Calculating the weights for the interpolation
+        float weightA = Mathf.Sin((1 - t) * theta) * invSinTheta;
+        float weightB = Mathf.Sin(t * theta) * invSinTheta;
 
-        // Calculate the weightings for the two quaternions
-        float w1 = Mathf.Sin((1.0f - t) * theta) / sinTheta;
-        float w2 = Mathf.Sin(t * theta) / sinTheta;
-
-        // Interpolate between the two quaternions using the weightings
-        MyQuaternion result = new MyQuaternion(
-            a.x * w1 + b.x * w2,
-            a.y * w1 + b.y * w2,
-            a.z * w1 + b.z * w2,
-            a.w * w1 + b.w * w2);
-
-        // Normalize the result quaternion
-        result.Normalize();
-
-        return result;
+        // Interpolating between the quaternions using the calculated weights
+        return new MyQuaternion(
+            weightA * a.x + weightB * b.x,
+            weightA * a.y + weightB * b.y,
+            weightA * a.z + weightB * b.z,
+            weightA * a.w + weightB * b.w
+        );
     }
     #endregion
 
