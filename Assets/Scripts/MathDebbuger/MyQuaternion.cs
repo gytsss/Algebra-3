@@ -1,10 +1,11 @@
+using CustomMath;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public struct MyQuaternion 
+public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 {
     #region StaticProperties
     public static MyQuaternion identity => new MyQuaternion(0, 0, 0, 1);
@@ -23,7 +24,7 @@ public struct MyQuaternion
             float pitch = Mathf.Atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y)) * Mathf.Rad2Deg;
             float yaw = Mathf.Atan2(2 * (w * y - z * x), 1 - 2 * (y * y + x * x)) * Mathf.Rad2Deg;
             float roll = Mathf.Asin(2 * (w * z + x * y)) * Mathf.Rad2Deg;
-            return new Vector3(pitch, yaw, roll);
+            return new Vec3(pitch, yaw, roll);
         }
     }
     public Quaternion normalized
@@ -91,14 +92,14 @@ public struct MyQuaternion
     #endregion
 
     #region Operators
-    public static Vector3 operator *(MyQuaternion rotation, Vector3 point)
+    public static Vec3 operator *(MyQuaternion rotation, Vec3 point)
     {
         // Calculate the vector part of the quaternion multiplied by the vector
-        Vector3 vectorPart = new Vector3(rotation.x, rotation.y, rotation.z);
-        Vector3 uv = Vector3.Cross(vectorPart, point);
+        Vec3 vectorPart = new Vec3(rotation.x, rotation.y, rotation.z);
+        Vec3 uv = Vec3.Cross(vectorPart, point);
 
         // Calculate the rotated vector by adding the vector part and twice the cross product of the vector part and the point
-        return point + 2.0f * (rotation.w * uv + vectorPart * Vector3.Dot(vectorPart, point));
+        return point + 2.0f * (rotation.w * uv + vectorPart * Vec3.Dot(vectorPart, point));
     }
 
     public static MyQuaternion operator *(MyQuaternion lhs, MyQuaternion rhs)
@@ -129,22 +130,22 @@ public struct MyQuaternion
         w = newW;
     }
 
-    public void SetFromToRotation(Vector3 fromDirection, Vector3 toDirection)
+    public void SetFromToRotation(Vec3 fromDirection, Vec3 toDirection)
     {
-        Vector3 cross = Vector3.Cross(fromDirection, toDirection);
-        float dot = Vector3.Dot(fromDirection, toDirection);
+        Vec3 cross = Vec3.Cross(fromDirection, toDirection);
+        float dot = Vec3.Dot(fromDirection, toDirection);
 
         if (dot < -0.999999f)
         {
             // If the vectors are opposite, rotate about an arbitrary axis
-            Vector3 axis = Vector3.up;
+            Vec3 axis = Vec3.Up;
             if (Mathf.Abs(fromDirection.x) < 0.1f && Mathf.Abs(fromDirection.z) < 0.1f)
             {
-                axis = Vector3.Cross(fromDirection, Vector3.right).normalized;
+                axis = Vec3.Cross(fromDirection, Vec3.Right).normalized;
             }
             else
             {
-                axis = Vector3.Cross(fromDirection, Vector3.up).normalized;
+                axis = Vec3.Cross(fromDirection, Vec3.Up).normalized;
             }
             AxisAngle(axis, 180.0f);
         }
@@ -155,7 +156,7 @@ public struct MyQuaternion
         }
     }
 
-    public void SetLookRotation(Vector3 view)
+    public void SetLookRotation(Vec3 view)
     {
         // Create a rotation that aligns the forward vector with the target direction
         MyQuaternion rotation = MyQuaternion.LookRotation(view);
@@ -167,7 +168,7 @@ public struct MyQuaternion
         w = rotation.w;
     }
 
-    public void SetLookRotation(Vector3 view, Vector3 up)
+    public void SetLookRotation(Vec3 view, Vec3 up)
     {
         // Create a rotation that aligns the forward vector with the target direction and the upwards vector with the target upwards direction
         MyQuaternion rotation = MyQuaternion.LookRotation(view, up);
@@ -179,7 +180,7 @@ public struct MyQuaternion
         w = rotation.w;
     }
 
-    public void ToAngleAxis(out float angle, out Vector3 axis)
+    public void ToAngleAxis(out float angle, out Vec3 axis)
     {
         // Calculate the sine of half the angle
         float sinHalfAngle = Mathf.Sqrt(1.0f - w * w);
@@ -188,13 +189,13 @@ public struct MyQuaternion
         if (sinHalfAngle > 0.0001f)
         {
             angle = 2.0f * Mathf.Acos(w) * Mathf.Rad2Deg;
-            axis = new Vector3(x, y, z) / sinHalfAngle;
+            axis = new Vec3(x, y, z) / sinHalfAngle;
         }
         else
         {
             // If the quaternion represents a zero rotation, return an angle of 0 and an arbitrary axis
             angle = 0.0f;
-            axis = Vector3.up;
+            axis = Vec3.Up;
         }
     }
 
@@ -218,7 +219,7 @@ public struct MyQuaternion
         return angle;
     }
 
-    public static MyQuaternion AngleAxis(float angle, Vector3 axis)
+    public static MyQuaternion AngleAxis(float angle, Vec3 axis)
     {
         // Convert the angle to radians
         float radians = angle * Mathf.Deg2Rad;
@@ -237,7 +238,7 @@ public struct MyQuaternion
         return rotation;
     }
 
-    public static MyQuaternion AxisAngle(Vector3 axis, float angle)
+    public static MyQuaternion AxisAngle(Vec3 axis, float angle)
     {
         // Normalize the axis vector
         axis.Normalize();
@@ -261,7 +262,7 @@ public struct MyQuaternion
         return dot;
     }
 
-    public static MyQuaternion Euler(Vector3 euler)
+    public static MyQuaternion Euler(Vec3 euler)
     {
         // Convert the angles to radians
         float rx = euler.x * Mathf.Deg2Rad;
@@ -309,13 +310,13 @@ public struct MyQuaternion
         return new MyQuaternion(xValue, yValue, zValue, w);
     }
 
-    public static MyQuaternion FromToRotation(Vector3 fromDirection, Vector3 toDirection)
+    public static MyQuaternion FromToRotation(Vec3 fromDirection, Vec3 toDirection)
     {
         // Calculate the cross product between the two vectors
-        Vector3 cross = Vector3.Cross(fromDirection, toDirection);
+        Vec3 cross = Vec3.Cross(fromDirection, toDirection);
 
         // Calculate the dot product between the two vectors
-        float dot = Vector3.Dot(fromDirection, toDirection);
+        float dot = Vec3.Dot(fromDirection, toDirection);
 
         // If the vectors are parallel, return the identity quaternion
         if (dot > 0.99999f)
@@ -325,10 +326,10 @@ public struct MyQuaternion
         else if (dot < -0.99999f)
         {
             // If the vectors are opposite, rotate about an arbitrary axis
-            Vector3 axis = Vector3.Cross(Vector3.up, fromDirection);
+            Vec3 axis = Vec3.Cross(Vec3.Up, fromDirection);
             if (axis.magnitude < 0.01f)
             {
-                axis = Vector3.Cross(Vector3.right, fromDirection);
+                axis = Vec3.Cross(Vec3.Right, fromDirection);
             }
             axis.Normalize();
             return AngleAxis(180.0f, axis);
@@ -337,7 +338,7 @@ public struct MyQuaternion
         {
             // Calculate the angle of rotation and the axis of rotation
             float angle = Mathf.Acos(dot);
-            Vector3 axis = cross.normalized;
+            Vec3 axis = cross.normalized;
 
             // Create a quaternion using the angle and axis
             return AngleAxis(angle * Mathf.Rad2Deg, axis);
@@ -377,24 +378,24 @@ public struct MyQuaternion
         return new MyQuaternion(x, y, z, w);
     }
 
-    public static MyQuaternion LookRotation(Vector3 forward, Vector3 upwards)
+    public static MyQuaternion LookRotation(Vec3 forward, Vec3 upwards)
     {
         MyQuaternion rotation = MyQuaternion.identity;
 
         if (forward.magnitude > 0.0f)
         {
-            Vector3 right = Vector3.Cross(upwards, forward).normalized;
-            upwards = Vector3.Cross(forward, right).normalized;
+            Vec3 right = Vec3.Cross(upwards, forward).normalized;
+            upwards = Vec3.Cross(forward, right).normalized;
             rotation = new MyQuaternion(upwards.x, upwards.y, upwards.z, right.x + forward.z);
         }
 
         return rotation;
     }
 
-    public static MyQuaternion LookRotation(Vector3 forward)
+    public static MyQuaternion LookRotation(Vec3 forward)
     {
         // Call the overload of LookRotation that takes an upwards vector with the default upwards vector
-        return LookRotation(forward, Vector3.up);
+        return LookRotation(forward, Vec3.Up);
     }
 
     public static MyQuaternion Normalize(MyQuaternion q)
@@ -478,6 +479,16 @@ public struct MyQuaternion
             weightA * a.z + weightB * b.z,
             weightA * a.w + weightB * b.w
         );
+    }
+
+    public bool Equals(MyQuaternion other)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        throw new NotImplementedException();
     }
     #endregion
 
