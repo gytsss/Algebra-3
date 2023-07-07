@@ -164,7 +164,7 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public void SetLookRotation(Vec3 view, Vec3 up)
     {
-        MyQuaternion rotation = MyQuaternion.LookRotation(view, up);
+        MyQuaternion rotation = LookRotation(view, up);
 
         x = rotation.x;
         y = rotation.y;
@@ -339,7 +339,7 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public static MyQuaternion LookRotation(Vec3 forward, Vec3 upwards)
     {
-        MyQuaternion rotation = MyQuaternion.identity;
+        MyQuaternion rotation = identity;
 
         if (forward.magnitude > 0.0f)
         {
@@ -371,15 +371,15 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public static MyQuaternion RotateTowards(MyQuaternion from, MyQuaternion to, float maxDegreesDelta)
     {
-        float angle = MyQuaternion.Angle(from, to);
+        float angle = Angle(from, to);
         float t = Mathf.Min(1.0f, maxDegreesDelta / angle);
-        MyQuaternion result = MyQuaternion.Slerp(from, to, t);
+        MyQuaternion result = Slerp(from, to, t);
         return result;
     }
 
     public static MyQuaternion Slerp(MyQuaternion a, MyQuaternion b, float t)
     {
-        float dot = MyQuaternion.Dot(a, b);
+        float dot = Dot(a, b);
 
         if (dot < 0)
         {
@@ -389,14 +389,14 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
         if (dot > 0.9995f)
         {
-            return MyQuaternion.LerpUnclamped(a, b, t);
+            return LerpUnclamped(a, b, t);
         }
 
-        float theta = Mathf.Acos(dot);
-        float invSinTheta = 1f / Mathf.Sin(theta);
+        float angle = Mathf.Acos(dot);
+        float invSinAngle = 1f / Mathf.Sin(angle);
 
-        float weightA = Mathf.Sin((1 - t) * theta) * invSinTheta;
-        float weightB = Mathf.Sin(t * theta) * invSinTheta;
+        float weightA = Mathf.Sin((1 - t) * angle) * invSinAngle;
+        float weightB = Mathf.Sin(t * angle) * invSinAngle;
 
         return new MyQuaternion(
             weightA * a.x + weightB * b.x,
@@ -407,7 +407,7 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public static MyQuaternion SlerpUnclamped(MyQuaternion a, MyQuaternion b, float t)
     {
-        float dot = MyQuaternion.Dot(a, b);
+        float dot = Dot(a, b);
 
         if (dot < 0)
         {
@@ -415,11 +415,11 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
             dot = -dot;
         }
 
-        float theta = Mathf.Acos(dot);
-        float invSinTheta = 1f / Mathf.Sin(theta);
+        float angle = Mathf.Acos(dot);
+        float invSinAngle = 1f / Mathf.Sin(angle);
 
-        float weightA = Mathf.Sin((1 - t) * theta) * invSinTheta;
-        float weightB = Mathf.Sin(t * theta) * invSinTheta;
+        float weightA = Mathf.Sin((1 - t) * angle) * invSinAngle;
+        float weightB = Mathf.Sin(t * angle) * invSinAngle;
 
         return new MyQuaternion(
             weightA * a.x + weightB * b.x,
