@@ -154,7 +154,7 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public void SetLookRotation(Vec3 view)
     {
-        MyQuaternion rotation = MyQuaternion.LookRotation(view);
+        MyQuaternion rotation = LookRotation(view);
 
         x = rotation.x;
         y = rotation.y;
