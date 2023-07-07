@@ -344,10 +344,8 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 Rotate(MyQuaternion q)
     {
-        // Crear una matriz de identidad
         MyMatrix4x4 rotationMatrix = MyMatrix4x4.identity;
 
-        // Calcular los componentes de la matriz de rotación
         float xx = q.x * q.x;
         float xy = q.x * q.y;
         float xz = q.x * q.z;
@@ -360,7 +358,6 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         float zz = q.z * q.z;
         float zw = q.z * q.w;
 
-        // Aplicar los componentes a la matriz de rotación
         rotationMatrix[0, 0] = 1 - 2 * (yy + zz);
         rotationMatrix[0, 1] = 2 * (xy - zw);
         rotationMatrix[0, 2] = 2 * (xz + yw);
@@ -378,10 +375,8 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 Scale(Vec3 vector)
     {
-        // Crear una matriz de identidad
         MyMatrix4x4 scaleMatrix = MyMatrix4x4.identity;
 
-        // Asignar los componentes del vector de escala a la matriz de escala
         scaleMatrix[0, 0] = vector.x;
         scaleMatrix[1, 1] = vector.y;
         scaleMatrix[2, 2] = vector.z;
@@ -391,10 +386,8 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 Translate(Vec3 vector)
     {
-        // Crear una matriz de identidad
         MyMatrix4x4 translationMatrix = MyMatrix4x4.identity;
 
-        // Asignar los componentes del vector de traslación a la matriz de traslación
         translationMatrix[0, 3] = vector.x;
         translationMatrix[1, 3] = vector.y;
         translationMatrix[2, 3] = vector.z;
@@ -404,16 +397,11 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 TRS(Vec3 pos, MyQuaternion q, Vec3 s)
     {
-        // Calcula la matriz de traslación
         MyMatrix4x4 translationMatrix = MyMatrix4x4.Translate(pos);
 
-        // Calcula la matriz de rotación
         MyMatrix4x4 rotationMatrix = MyMatrix4x4.Rotate(q);
 
-        // Calcula la matriz de escala
         MyMatrix4x4 scaleMatrix = MyMatrix4x4.Scale(s);
-
-        // Combina las matrices de traslación, rotación y escala en una sola matriz
         MyMatrix4x4 resultMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
         return resultMatrix;
@@ -434,7 +422,6 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
     {
         MyMatrix4x4 transposeMatrix = new MyMatrix4x4();
 
-        // Transpone los elementos de la matriz
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 4; j++)
@@ -455,7 +442,6 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
         Vector4 columnVector = new Vector4();
 
-        // Copia los componentes de la columna especificada en el vector de columna
         for (int i = 0; i < 4; i++)
         {
             columnVector[i] = this[i, index];
@@ -478,7 +464,6 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
         Vector4 rowVector = new Vector4();
 
-        // Copia los componentes de la fila especificada en el vector de fila
         for (int i = 0; i < 4; i++)
         {
             rowVector[i] = this[index, i];
@@ -489,18 +474,14 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public Vec3 MultiplyPoint(Vec3 point)
     {
-        // Crea un nuevo vector para almacenar el resultado de la multiplicación de punto
         Vec3 result = new Vec3();
 
-        // Realiza la multiplicación de punto entre el vector y la matriz
         result.x = this[0, 0] * point.x + this[0, 1] * point.y + this[0, 2] * point.z + this[0, 3];
         result.y = this[1, 0] * point.x + this[1, 1] * point.y + this[1, 2] * point.z + this[1, 3];
         result.z = this[2, 0] * point.x + this[2, 1] * point.y + this[2, 2] * point.z + this[2, 3];
 
-        // Calcula la longitud del vector resultante con euclidean
         float length = Mathf.Sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
 
-        // Normaliza el vector resultante dividiendo cada componente por la longitud
         result.x /= length;
         result.y /= length;
         result.z /= length;
@@ -551,29 +532,6 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         this = TRS(pos, q, s);
     }
    
-    public bool ValidTRS()
-    {
-        // Verificar si la matriz es una matriz de transformación TRS válida
-
-        // Verificar si la matriz es una matriz de escala válida
-        if (this[0, 0] <= 0 || this[1, 1] <= 0 || this[2, 2] <= 0)
-        {
-            return false;
-        }
-
-        // Verificar si la matriz es una matriz de rotación válida
-        Matrix3x3 rotationMatrix = new Matrix3x3(this[0, 0], this[0, 1], this[0, 2],
-                                                 this[1, 0], this[1, 1], this[1, 2],
-                                                 this[2, 0], this[2, 1], this[2, 2]);
-
-        if (!rotationMatrix.IsValidRotationMatrix())
-        {
-            return false;
-        }
-
-        return true; // Retorna verdadero si la matriz cumple los requisitos de una transformación TRS válida
-    }
-
 
     public bool Equals(MyMatrix4x4 other)
     {
@@ -592,7 +550,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
             formatProvider = CultureInfo.InvariantCulture.NumberFormat;
         }
 
-        return UnityString.Format("{0}\t{1}\t{2}\t{3}\n{4}\t{5}\t{6}\t{7}\n{8}\t{9}\t{10}\t{11}\n{12}\t{13}\t{14}\t{15}\n", m00.ToString(format, formatProvider), m01.ToString(format, formatProvider), m02.ToString(format, formatProvider), m03.ToString(format, formatProvider), m10.ToString(format, formatProvider), m11.ToString(format, formatProvider), m12.ToString(format, formatProvider), m13.ToString(format, formatProvider), m20.ToString(format, formatProvider), m21.ToString(format, formatProvider), m22.ToString(format, formatProvider), m23.ToString(format, formatProvider), m30.ToString(format, formatProvider), m31.ToString(format, formatProvider), m32.ToString(format, formatProvider), m33.ToString(format, formatProvider));
+        return string.Format("{0}\t{1}\t{2}\t{3}\n{4}\t{5}\t{6}\t{7}\n{8}\t{9}\t{10}\t{11}\n{12}\t{13}\t{14}\t{15}\n", m00.ToString(format, formatProvider), m01.ToString(format, formatProvider), m02.ToString(format, formatProvider), m03.ToString(format, formatProvider), m10.ToString(format, formatProvider), m11.ToString(format, formatProvider), m12.ToString(format, formatProvider), m13.ToString(format, formatProvider), m20.ToString(format, formatProvider), m21.ToString(format, formatProvider), m22.ToString(format, formatProvider), m23.ToString(format, formatProvider), m30.ToString(format, formatProvider), m31.ToString(format, formatProvider), m32.ToString(format, formatProvider), m33.ToString(format, formatProvider));
 
     }
     #endregion
