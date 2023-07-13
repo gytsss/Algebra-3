@@ -18,7 +18,6 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
     public float y;
     public float z;
     public float w;
-
     public Vec3 eulerAngles
     {
         get
@@ -97,9 +96,9 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
     public static Vec3 operator *(MyQuaternion rotation, Vec3 point)
     {
         Vec3 vectorPart = new Vec3(rotation.x, rotation.y, rotation.z);
-        Vec3 uv = Vec3.Cross(vectorPart, point);
-
-        return point + 2.0f * (rotation.w * uv + vectorPart * Vec3.Dot(vectorPart, point));
+        Vec3 v = Vec3.Cross(vectorPart, point);
+         
+        return point + 2.0f * (rotation.w * v + vectorPart * Vec3.Dot(vectorPart, point));
     }
 
     public static MyQuaternion operator *(MyQuaternion lhs, MyQuaternion rhs)
@@ -326,10 +325,10 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
         }
         else
         {
-            result.x = a.x * invT + b.x * t;
-            result.y = a.y * invT + b.y * t;
-            result.z = a.z * invT + b.z * t;
-            result.w = a.w * invT + b.w * t;
+            result.x = a.x * invT - b.x * t;
+            result.y = a.y * invT - b.y * t;
+            result.z = a.z * invT - b.z * t;
+            result.w = a.w * invT - b.w * t;
         }
 
         Normalize(result);
@@ -379,6 +378,13 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public static MyQuaternion Slerp(MyQuaternion a, MyQuaternion b, float t)
     {
+        t = Mathf.Clamp01(t);
+
+        return SlerpUnclamped(a, b, t);
+    }
+
+    public static MyQuaternion SlerpUnclamped(MyQuaternion a, MyQuaternion b, float t)
+    {
         float dot = Dot(a, b);
 
         if (dot < 0)
@@ -390,29 +396,6 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
         if (dot > 0.9995f)
         {
             return LerpUnclamped(a, b, t);
-        }
-
-        float angle = Mathf.Acos(dot);
-        float invSinAngle = 1f / Mathf.Sin(angle);
-
-        float weightA = Mathf.Sin((1 - t) * angle) * invSinAngle;
-        float weightB = Mathf.Sin(t * angle) * invSinAngle;
-
-        return new MyQuaternion(
-            weightA * a.x + weightB * b.x,
-            weightA * a.y + weightB * b.y,
-            weightA * a.z + weightB * b.z,
-            weightA * a.w + weightB * b.w);
-    }
-
-    public static MyQuaternion SlerpUnclamped(MyQuaternion a, MyQuaternion b, float t)
-    {
-        float dot = Dot(a, b);
-
-        if (dot < 0)
-        {
-            b = new MyQuaternion(-b.x, -b.y, -b.z, -b.w);
-            dot = -dot;
         }
 
         float angle = Mathf.Acos(dot);

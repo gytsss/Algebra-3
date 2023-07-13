@@ -214,12 +214,12 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
     public float determinant
     {
         get
-        { 
+        {
             return this[0, 0] * (
             this[1, 1] * (this[2, 2] * this[3, 3] - this[2, 3] * this[3, 2]) -
             this[1, 2] * (this[2, 1] * this[3, 3] - this[2, 3] * this[3, 1]) +
             this[1, 3] * (this[2, 1] * this[3, 2] - this[2, 2] * this[3, 1])
-        ) 
+        )
         -
         this[0, 1] * (
             this[1, 0] * (this[2, 2] * this[3, 3] - this[2, 3] * this[3, 2]) -
@@ -257,6 +257,9 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         }
     }
 
+    public Vector3 lossyScale => new(GetColumn(0).magnitude, GetColumn(1).magnitude, GetColumn(2).magnitude);
+
+
     #endregion
 
     #region Constructor
@@ -285,7 +288,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
     #region Operators
     public static MyMatrix4x4 operator *(MyMatrix4x4 lhs, MyMatrix4x4 rhs)
     {
-        MyMatrix4x4 result = MyMatrix4x4.zero;
+        MyMatrix4x4 result = zero;
         result.m00 = lhs.m00 * rhs.m00 + lhs.m01 * rhs.m10 + lhs.m02 * rhs.m20 + lhs.m03 * rhs.m30;
         result.m01 = lhs.m00 * rhs.m01 + lhs.m01 * rhs.m11 + lhs.m02 * rhs.m21 + lhs.m03 * rhs.m31;
         result.m02 = lhs.m00 * rhs.m02 + lhs.m01 * rhs.m12 + lhs.m02 * rhs.m22 + lhs.m03 * rhs.m32;
@@ -344,7 +347,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 Rotate(MyQuaternion q)
     {
-        MyMatrix4x4 rotationMatrix = MyMatrix4x4.identity;
+        MyMatrix4x4 rotationMatrix = identity;
 
         float xx = q.x * q.x;
         float xy = q.x * q.y;
@@ -375,7 +378,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 Scale(Vec3 vector)
     {
-        MyMatrix4x4 scaleMatrix = MyMatrix4x4.identity;
+        MyMatrix4x4 scaleMatrix = identity;
 
         scaleMatrix[0, 0] = vector.x;
         scaleMatrix[1, 1] = vector.y;
@@ -386,7 +389,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 Translate(Vec3 vector)
     {
-        MyMatrix4x4 translationMatrix = MyMatrix4x4.identity;
+        MyMatrix4x4 translationMatrix = identity;
 
         translationMatrix[0, 3] = vector.x;
         translationMatrix[1, 3] = vector.y;
@@ -397,17 +400,15 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public static MyMatrix4x4 TRS(Vec3 pos, MyQuaternion q, Vec3 s)
     {
-        MyMatrix4x4 translationMatrix = MyMatrix4x4.Translate(pos);
+        MyMatrix4x4 translationMatrix = Translate(pos);
 
-        MyMatrix4x4 rotationMatrix = MyMatrix4x4.Rotate(q);
+        MyMatrix4x4 rotationMatrix = Rotate(q);
 
-        MyMatrix4x4 scaleMatrix = MyMatrix4x4.Scale(s);
+        MyMatrix4x4 scaleMatrix = Scale(s);
         MyMatrix4x4 resultMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
         return resultMatrix;
     }
-
-
 
     #endregion
 
@@ -480,7 +481,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         result.y = this[1, 0] * point.x + this[1, 1] * point.y + this[1, 2] * point.z + this[1, 3];
         result.z = this[2, 0] * point.x + this[2, 1] * point.y + this[2, 2] * point.z + this[2, 3];
 
-        float length = Mathf.Sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
+        float length = result.magnitude;
 
         result.x /= length;
         result.y /= length;
@@ -531,7 +532,33 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
     {
         this = TRS(pos, q, s);
     }
-   
+
+    public bool ValidTRS()
+    {
+        if (m30 != 0 || m31 != 0 || m32 != 0 || m33 != 1)
+        {
+            return false;
+        }
+
+        // Rotation: The upper-left 3x3 submatrix should be an orthogonal matrix
+        Vec3 column0 = new Vec3(m00, m10, m20);
+        Vec3 column1 = new Vec3(m01, m11, m21);
+        Vec3 column2 = new Vec3(m02, m12, m22);
+
+        if (!Mathf.Approximately(Vec3.Dot(column0, column1), 0) ||
+            !Mathf.Approximately(Vec3.Dot(column0, column2), 0) ||
+            !Mathf.Approximately(Vec3.Dot(column1, column2), 0))
+        {
+            return false;
+        }
+
+        if (m00 < 0 || m11 < 0 || m22 < 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
 
     public bool Equals(MyMatrix4x4 other)
     {
