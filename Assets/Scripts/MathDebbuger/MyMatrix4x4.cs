@@ -257,8 +257,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         }
     }
 
-    public Vector3 lossyScale => new(GetColumn(0).magnitude, GetColumn(1).magnitude, GetColumn(2).magnitude);
-
+    public Vec3 lossyScale => new(GetColumn(0).magnitude, GetColumn(1).magnitude, GetColumn(2).magnitude);
 
     #endregion
 
@@ -414,12 +413,12 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     #region Methods
 
-    public static float Determinant(Matrix4x4 m)
+    public static float Determinant(MyMatrix4x4 m)
     {
         return m.determinant;
     }
 
-    public MyMatrix4x4 Transpose(Matrix4x4 m)
+    public MyMatrix4x4 Transpose(MyMatrix4x4 m)
     {
         MyMatrix4x4 transposeMatrix = new MyMatrix4x4();
 
@@ -481,12 +480,11 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         result.y = this[1, 0] * point.x + this[1, 1] * point.y + this[1, 2] * point.z + this[1, 3];
         result.z = this[2, 0] * point.x + this[2, 1] * point.y + this[2, 2] * point.z + this[2, 3];
 
-        float length = result.magnitude;
+        float num = 1f / ((this[3, 0] * point.x + this[3, 1] * point.y + this[3, 2] * point.z) + this[3, 3]); 
 
-        result.x /= length;
-        result.y /= length;
-        result.z /= length;
-
+        result.x *= num; 
+        result.y *= num;
+        result.z *= num;
         return result;
     }
 

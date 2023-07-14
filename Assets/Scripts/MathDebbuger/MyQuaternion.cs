@@ -389,7 +389,7 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
         if (dot < 0)
         {
-            b = new MyQuaternion(-b.x, -b.y, -b.z, -b.w);
+            b = new MyQuaternion(-b.x, -b.y, -b.z, b.w);
             dot = -dot;
         }
 
