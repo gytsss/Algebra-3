@@ -181,7 +181,6 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
         }
     }
 
-
     public bool isIdentity
     {
         get
@@ -235,7 +234,7 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
             this[1, 0] * (this[2, 1] * this[3, 2] - this[2, 2] * this[3, 1]) -
             this[1, 1] * (this[2, 0] * this[3, 2] - this[2, 2] * this[3, 0]) +
             this[1, 2] * (this[2, 0] * this[3, 1] - this[2, 1] * this[3, 0])
-        ); ;
+        ); 
         }
     }
 
@@ -259,6 +258,65 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     public Vec3 lossyScale => new(GetColumn(0).magnitude, GetColumn(1).magnitude, GetColumn(2).magnitude);
 
+
+    //The inverse of a matrix formula: A^-1= adj(A)/det(A)
+    //https://byjus.com/maths/inverse-matrix/#:~:text=A-1%3D%20adj(A)%2Fdet(A)%2C&text=take%20the%20transpose%20of%20a%20cofactor%20matrix.&text=Here%2C%20Mij%20refers%20to,adjoint%20of%20a%20matrix%20here.
+    public static MyMatrix4x4 Inverse(MyMatrix4x4 m) 
+    {
+        float detA = Determinant(m);
+                                    
+        if (detA == 0)
+        {
+            return zero;
+        }
+
+        MyMatrix4x4 aux = new MyMatrix4x4()
+        {
+            m00 = m.m11 * m.m22 * m.m33 + m.m12 * m.m23 * m.m31 + m.m13 * m.m21 * m.m32 - m.m11 * m.m23 * m.m32 - m.m12 * m.m21 * m.m33 - m.m13 * m.m22 * m.m31, //(0,0)
+            m01 = m.m01 * m.m23 * m.m32 + m.m02 * m.m21 * m.m33 + m.m03 * m.m22 * m.m31 - m.m01 * m.m22 * m.m33 - m.m02 * m.m23 * m.m31 - m.m03 * m.m21 * m.m32, //(0,1)
+            m02 = m.m01 * m.m12 * m.m33 + m.m02 * m.m13 * m.m32 + m.m03 * m.m11 * m.m32 - m.m01 * m.m13 * m.m32 - m.m02 * m.m11 * m.m33 - m.m03 * m.m12 * m.m31, //(0,2)
+            m03 = m.m01 * m.m13 * m.m22 + m.m02 * m.m11 * m.m23 + m.m03 * m.m12 * m.m21 - m.m01 * m.m12 * m.m23 - m.m02 * m.m13 * m.m21 - m.m03 * m.m11 * m.m22, //(0,3)
+                                                                                                                                                                 					    
+            m10 = m.m10 * m.m23 * m.m32 + m.m12 * m.m20 * m.m33 + m.m13 * m.m22 * m.m30 - m.m10 * m.m22 * m.m33 - m.m12 * m.m23 * m.m30 - m.m13 * m.m20 * m.m32, //(1,0)
+            m11 = m.m00 * m.m22 * m.m33 + m.m02 * m.m23 * m.m30 + m.m03 * m.m20 * m.m32 - m.m00 * m.m23 * m.m32 - m.m02 * m.m20 * m.m33 - m.m03 * m.m22 * m.m30, //(1,1)
+            m12 = m.m00 * m.m13 * m.m32 + m.m02 * m.m10 * m.m33 + m.m03 * m.m12 * m.m30 - m.m00 * m.m12 * m.m33 - m.m02 * m.m13 * m.m30 - m.m03 * m.m10 * m.m32, //(1,2)
+            m13 = m.m00 * m.m12 * m.m23 + m.m02 * m.m13 * m.m20 + m.m03 * m.m10 * m.m22 - m.m00 * m.m13 * m.m22 - m.m02 * m.m10 * m.m23 - m.m03 * m.m12 * m.m20, //(1,3)
+                                                                                                                                                                 						    
+            m20 = m.m10 * m.m21 * m.m33 + m.m11 * m.m23 * m.m30 + m.m13 * m.m20 * m.m31 - m.m10 * m.m23 * m.m31 - m.m11 * m.m20 * m.m33 - m.m13 * m.m31 * m.m30, //(2,0)
+            m21 = m.m00 * m.m23 * m.m31 + m.m01 * m.m20 * m.m33 + m.m03 * m.m21 * m.m30 - m.m00 * m.m21 * m.m33 - m.m01 * m.m23 * m.m30 - m.m03 * m.m20 * m.m31, //(2,1)
+            m22 = m.m00 * m.m11 * m.m33 + m.m01 * m.m13 * m.m31 + m.m03 * m.m10 * m.m31 - m.m00 * m.m13 * m.m31 - m.m01 * m.m10 * m.m33 - m.m03 * m.m11 * m.m30, //(2,2)
+            m23 = m.m00 * m.m13 * m.m21 + m.m01 * m.m10 * m.m23 + m.m03 * m.m11 * m.m31 - m.m00 * m.m11 * m.m23 - m.m01 * m.m13 * m.m20 - m.m03 * m.m10 * m.m21, //(2,3)
+                                                                                                                                                                 					    
+            m30 = m.m10 * m.m22 * m.m31 + m.m11 * m.m20 * m.m32 + m.m12 * m.m21 * m.m30 - m.m00 * m.m21 * m.m32 - m.m11 * m.m22 * m.m30 - m.m12 * m.m20 * m.m31, //(3,0)
+            m31 = m.m00 * m.m21 * m.m32 + m.m01 * m.m22 * m.m30 + m.m02 * m.m20 * m.m31 - m.m00 * m.m22 * m.m31 - m.m01 * m.m20 * m.m32 - m.m02 * m.m21 * m.m30, //(3,1)
+            m32 = m.m00 * m.m12 * m.m31 + m.m01 * m.m10 * m.m32 + m.m02 * m.m11 * m.m30 - m.m00 * m.m11 * m.m32 - m.m01 * m.m12 * m.m30 - m.m02 * m.m10 * m.m31, //(3,2)
+            m33 = m.m00 * m.m11 * m.m22 + m.m01 * m.m12 * m.m20 + m.m02 * m.m10 * m.m21 - m.m00 * m.m12 * m.m21 - m.m01 * m.m10 * m.m22 - m.m02 * m.m11 * m.m20  //(3,3)
+        };
+
+      
+        MyMatrix4x4 ret = new MyMatrix4x4()
+        {
+            //Calculate the inverse of the determinant 
+            m00 = aux.m00 / detA,
+            m01 = aux.m01 / detA,
+            m02 = aux.m02 / detA,
+            m03 = aux.m03 / detA,
+            m10 = aux.m10 / detA,
+            m11 = aux.m11 / detA,
+            m12 = aux.m12 / detA,
+            m13 = aux.m13 / detA,
+            m20 = aux.m20 / detA,
+            m21 = aux.m21 / detA,
+            m22 = aux.m22 / detA,
+            m23 = aux.m23 / detA,
+            m30 = aux.m30 / detA,
+            m31 = aux.m31 / detA,
+            m32 = aux.m32 / detA,
+            m33 = aux.m33 / detA
+        };
+
+        return ret;
+    }
     #endregion
 
     #region Constructor
@@ -579,7 +637,5 @@ public struct MyMatrix4x4 : IEquatable<MyMatrix4x4>, IFormattable
 
     }
     #endregion
-
-
 
 }

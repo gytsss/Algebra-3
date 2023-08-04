@@ -22,9 +22,9 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
     {
         get
         {
-            float pitch = Mathf.Atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y)) * Mathf.Rad2Deg;
-            float yaw = Mathf.Atan2(2 * (w * y - z * x), 1 - 2 * (y * y + x * x)) * Mathf.Rad2Deg;
-            float roll = Mathf.Asin(2 * (w * z + x * y)) * Mathf.Rad2Deg;
+            float pitch = Mathf.Atan2(2f * (w * x + y * z), 1 - 2f * (x * x + y * y)) * Mathf.Rad2Deg;
+            float yaw = Mathf.Atan2(2f * (w * y - z * x), 1 - 2f * (y * y + x * x)) * Mathf.Rad2Deg;
+            float roll = Mathf.Asin(2f * (w * z + x * y)) * Mathf.Rad2Deg;
             return new Vec3(pitch, yaw, roll);
         }
     }
@@ -97,7 +97,7 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
     {
         Vec3 vectorPart = new Vec3(rotation.x, rotation.y, rotation.z);
         Vec3 v = Vec3.Cross(vectorPart, point);
-         
+
         return point + 2.0f * (rotation.w * v + vectorPart * Vec3.Dot(vectorPart, point));
     }
 
@@ -295,19 +295,9 @@ public struct MyQuaternion : IEquatable<MyQuaternion>, IFormattable
 
     public static MyQuaternion Lerp(MyQuaternion a, MyQuaternion b, float t)
     {
-        MyQuaternion result = identity;
-
         t = Mathf.Clamp01(t);
-        float invT = 1f - t;
 
-        result.w = a.w * invT + b.w * t;
-        result.x = a.x * invT + b.x * t;
-        result.y = a.y * invT + b.y * t;
-        result.z = a.z * invT + b.z * t;
-
-        Normalize(result);
-
-        return result;
+        return LerpUnclamped(a, b, t);
     }
 
     public static MyQuaternion LerpUnclamped(MyQuaternion a, MyQuaternion b, float t)

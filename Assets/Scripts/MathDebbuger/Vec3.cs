@@ -11,12 +11,12 @@ namespace CustomMath
         public float y;
         public float z;
 
-        public float sqrMagnitude { get { return x * x + y * y + z * z; } } 
-        public Vec3 normalized  
+        public float sqrMagnitude { get { return x * x + y * y + z * z; } }
+        public Vec3 normalized
         {
             get
             {
-                float mag = this.magnitude;
+                float mag = magnitude;
                 if (mag > Mathf.Epsilon)
                     return this / mag;
                 else
@@ -24,11 +24,11 @@ namespace CustomMath
             }
         }
 
-        public float magnitude { get { return Mathf.Sqrt(sqrMagnitude); } } 
+        public float magnitude { get { return Mathf.Sqrt(sqrMagnitude); } }
         #endregion
 
         #region constants
-        public const float epsilon = 1e-05f; 
+        public const float epsilon = 1e-05f;
         #endregion
 
         #region Default Values
@@ -40,7 +40,7 @@ namespace CustomMath
         public static Vec3 Left { get { return new Vec3(-1.0f, 0.0f, 0.0f); } }
         public static Vec3 Up { get { return new Vec3(0.0f, 1.0f, 0.0f); } }
         public static Vec3 Down { get { return new Vec3(0.0f, -1.0f, 0.0f); } }
-        
+
         public static Vec3 PositiveInfinity { get { return new Vec3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity); } }
 
         public static Vec3 NegativeInfinity { get { return new Vec3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity); } }
@@ -152,14 +152,14 @@ namespace CustomMath
         {
             return "X = " + x.ToString() + "   Y = " + y.ToString() + "   Z = " + z.ToString();
         }
-        public static float Angle(Vec3 from, Vec3 to)  
+        public static float Angle(Vec3 from, Vec3 to)
         {
-            float cosTheta = Vec3.Dot(from.normalized, to.normalized);
-            float theta = Mathf.Acos(cosTheta) * Mathf.Rad2Deg;
-            return theta;
+            float cosAngle = Dot(from.normalized, to.normalized);
+            float angle = Mathf.Acos(cosAngle) * Mathf.Rad2Deg;
+            return angle;
         }
 
-        public static Vec3 ClampMagnitude(Vec3 vector, float maxLength)  
+        public static Vec3 ClampMagnitude(Vec3 vector, float maxLength)
         {
             if (vector.magnitude > maxLength)
             {
@@ -176,7 +176,7 @@ namespace CustomMath
             return Mathf.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
         }
 
-        public static Vec3 Cross(Vec3 a, Vec3 b) 
+        public static Vec3 Cross(Vec3 a, Vec3 b)
         {
             return new Vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
         }
@@ -186,12 +186,12 @@ namespace CustomMath
             return (a - b).magnitude;
         }
 
-        public static float Dot(Vec3 a, Vec3 b) 
+        public static float Dot(Vec3 a, Vec3 b)
         {
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
-        public static Vec3 Lerp(Vec3 a, Vec3 b, float t) 
+        public static Vec3 Lerp(Vec3 a, Vec3 b, float t)
         {
             t = Mathf.Clamp01(t);
             return a + (b - a) * t;
@@ -202,54 +202,54 @@ namespace CustomMath
             return a + (b - a) * t;
         }
 
-        public static Vec3 Max(Vec3 a, Vec3 b) 
+        public static Vec3 Max(Vec3 a, Vec3 b)
         {
             return new Vec3(Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y), Mathf.Max(a.z, b.z));
         }
 
-        public static Vec3 Min(Vec3 a, Vec3 b) 
+        public static Vec3 Min(Vec3 a, Vec3 b)
         {
             return new Vec3(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Min(a.z, b.z));
         }
 
-        public static float SqrMagnitude(Vec3 vector) 
+        public static float SqrMagnitude(Vec3 vector)
         {
             return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
         }
 
-        public static Vec3 Project(Vec3 vector, Vec3 onNormal) 
+        public static Vec3 Project(Vec3 vector, Vec3 onNormal)
         {
-            float sqrMag = Vec3.Dot(onNormal, onNormal);
+            float sqrMag = Dot(onNormal, onNormal);
 
             if (sqrMag < Mathf.Epsilon)
             {
                 return Zero;
             }
 
-            float dot = Vec3.Dot(vector, onNormal);
+            float dot = Dot(vector, onNormal);
             return onNormal * dot / sqrMag;
         }
 
-        public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal) 
+        public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal)
         {
             return inDirection - 2.0f * Dot(inDirection, inNormal) * inNormal;
         }
 
-        public void Set(float newX, float newY, float newZ) 
+        public void Set(float newX, float newY, float newZ)
         {
             x = newX;
             y = newY;
             z = newZ;
         }
 
-        public void Scale(Vec3 scale) 
+        public void Scale(Vec3 scale)
         {
             x *= scale.x;
             y *= scale.y;
             z *= scale.z;
         }
 
-        public void Normalize() 
+        public void Normalize()
         {
             float mag = Magnitude(this);
 
@@ -271,12 +271,12 @@ namespace CustomMath
             return Equals((Vec3)other);
         }
 
-        public bool Equals(Vec3 other) 
+        public bool Equals(Vec3 other)
         {
             return x == other.x && y == other.y && z == other.z;
         }
 
-        public override int GetHashCode() 
+        public override int GetHashCode()
         {
             return x.GetHashCode() ^ (y.GetHashCode() << 2) ^ (z.GetHashCode() >> 2);
         }
